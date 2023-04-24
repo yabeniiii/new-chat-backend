@@ -1,16 +1,15 @@
 pub struct User {
-    id: i32,
-    email: String,
-    display_name: String,
-    display_color: Option<String>,
-    avatar_url: Option<String>,
-    messages: Vec<Message>,
+    pub id: i32,
+    pub email: String,
+    pub display_name: String,
+    pub display_color: Option<String>,
+    pub avatar_url: Option<String>,
 }
 
 pub struct Message {
-    id: i32,
-    sender: User,
-    contend: String,
+    pub id: i32,
+    pub sender: User,
+    pub content: String,
 }
 
-async fn get_recent_messages() {}
+// async fn get_recent_messages() {}

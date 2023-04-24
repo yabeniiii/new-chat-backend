@@ -2,8 +2,8 @@ CREATE TABLE users (
     id serial PRIMARY KEY UNIQUE,
     email text UNIQUE NOT NULL,
     display_name text NOT NULL,
-    display_color text,
-    avatar_url char[6]
+    display_color char (6),
+    avatar_url text
 );
 CREATE TABLE messages (
     id serial PRIMARY KEY,

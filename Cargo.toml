@@ -6,6 +6,9 @@ edition = "2021"
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
 [dependencies]
-async-std = "1.12.0"
-postgres = "0.19.5"
-rocket = "=0.5.0-rc.3"
+actix-web = "4"
+serde = { version = "1.0.160", features = ["derive"]}
+dotenv = "0.15.0"
+tokio-postgres = "0.7.8"
+tokio-pg-mapper = "0.2.0"
+tokio = "1.28.0"

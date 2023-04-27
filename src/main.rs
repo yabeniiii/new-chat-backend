@@ -1,52 +1,47 @@
 mod queries;
 
-use backend::User;
-//#[macro_use]
-//extern crate rocket;
-use postgres::{Client, NoTls};
+use actix_web::{get, App, HttpResponse, HttpServer, Responder};
+use backend::models;
+use tokio;
+use tokio_postgres::{Error, NoTls};
 
-//#[get("/")]
-//fn index() -> String {
-//   let mut client = match Client::connect("host=localhost user=aidanboland", NoTls) {
-//      Ok(client) => format!("hey chat!"),
-//     Err(err) => {
-//        format!("ERROR: database connection error: {}", err)
-//   }
-// };
-//return client;
-//}
-
-//#[launch]
-//fn rocket() -> _ {
-//   rocket::build().mount("/", routes![index])
-//}
-fn main() {
-    let mut client = match Client::connect("host=localhost dbname=chat_app user=aidanboland", NoTls)
-    {
-        Ok(client) => client,
-        Err(err) => panic!("ERROR: error connecting to database: {}", err),
+#[get("/")]
+async fn index() -> impl Responder {
+    let user = models::User {
+        id: None,
+        email: format!("nut@nut.nut"),
+        display_name: format!("nut"),
+        display_color: None,
+        avatar_url: None,
     };
 
-    let mut response_vec: Vec<User> = Vec::new();
+    // Connect to the database.
+    let (client, connection) =
+        match tokio_postgres::connect("host=localhost user=postgres", NoTls).await {
+            Ok(client) => client,
+            Err(err) => return HttpResponse::InternalServerError().body(format!("{}", err)),
+        };
 
-    let response = match client.query(queries::USER_GET, &[]) {
-        Ok(res) => res,
-        Err(err) => panic!("ERROR: error querying database: {}", err),
+    // The connection object performs the actual communication with the database,
+    // so spawn it off to run on its own.
+    tokio::spawn(async move {
+        if let Err(e) = connection.await {
+            eprintln!("connection error: {}", e);
+        }
+    });
+
+    let db_response = match queries::create_user_query(user, client).await {
+        Ok(rows_changed) => rows_changed,
+        Err(err) => return HttpResponse::InternalServerError().body(format!("{}", err)),
     };
-    for row in response.iter() {
-        response_vec.push(User {
-            id: row.get(0),
-            email: row.get(1),
-            display_name: row.get(2),
-            display_color: None,
-            avatar_url: None,
-        })
-    }
 
-    let uuhhh = match response_vec.get(0) {
-        Some(val) => val,
-        None => panic!("ERROR: no users in database"),
-    };
+    return HttpResponse::Ok().body(format!("lol {}", db_response));
+}
 
-    println!("{:?}, {} {}", uuhhh.id, uuhhh.email, uuhhh.display_name);
+#[actix_web::main]
+async fn main() -> std::io::Result<()> {
+    HttpServer::new(|| App::new().service(index))
+        .bind(("127.0.0.1", 8080))?
+        .run()
+        .await
 }

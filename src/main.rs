@@ -1,11 +1,13 @@
 mod queries;
 
-use actix_web::{get, App, HttpResponse, HttpServer, Responder};
+use std::fmt::format;
+
+use actix_web::{get, post, App, HttpResponse, HttpServer, Responder};
 use backend::models;
 use tokio;
 use tokio_postgres::{Error, NoTls};
 
-#[get("/")]
+#[post("/")]
 async fn index() -> impl Responder {
     let user = models::User {
         id: None,
@@ -40,9 +42,31 @@ async fn index() -> impl Responder {
     return HttpResponse::Ok().body(format!("lol {}", db_response));
 }
 
+#[get("/user")]
+async fn get_user() -> impl Responder {
+    let id = 3;
+    let (client, connection) =
+        match tokio_postgres::connect("host=localhost dbname=chat_app user=aidanboland", NoTls)
+            .await
+        {
+            Ok(client) => client,
+            Err(err) => return HttpResponse::InternalServerError().body(format!("{}", err)),
+        };
+    tokio::spawn(async move {
+        if let Err(e) = connection.await {
+            eprintln!("connection error: {}", e);
+        }
+    });
+    let db_response = match queries::get_user_query(id, client).await {
+        Ok(response) => response,
+        Err(err) => return HttpResponse::InternalServerError().body(format!("{}", err)),
+    };
+    return HttpResponse::Ok().body(format!("{:?}", db_response));
+}
+
 #[actix_web::main]
 async fn main() -> std::io::Result<()> {
-    HttpServer::new(|| App::new().service(index))
+    HttpServer::new(|| App::new().service(index).service(get_user))
         .bind(("127.0.0.1", 8080))?
         .run()
         .await

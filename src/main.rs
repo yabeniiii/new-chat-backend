@@ -17,7 +17,9 @@ async fn index() -> impl Responder {
 
     // Connect to the database.
     let (client, connection) =
-        match tokio_postgres::connect("host=localhost user=postgres", NoTls).await {
+        match tokio_postgres::connect("host=localhost dbname=chat_app user=aidanboland", NoTls)
+            .await
+        {
             Ok(client) => client,
             Err(err) => return HttpResponse::InternalServerError().body(format!("{}", err)),
         };

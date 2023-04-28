@@ -2,20 +2,20 @@ mod queries;
 
 use std::fmt::format;
 
-use actix_web::{get, post, App, HttpResponse, HttpServer, Responder};
+use actix_web::{get, post, web, App, HttpResponse, HttpServer, Responder};
 use backend::models;
 use tokio;
 use tokio_postgres::{Error, NoTls};
 
-#[post("/")]
-async fn index() -> impl Responder {
-    let user = models::User {
-        id: None,
-        email: format!("nut@nut.nut"),
-        display_name: format!("nut"),
-        display_color: None,
-        avatar_url: None,
-    };
+#[post("/user/create")]
+async fn index(user: web::Json<models::User>) -> impl Responder {
+    // let user = models::User {
+    //     id: None,
+    //     email: format!("nut@nut.nut"),
+    //     display_name: format!("nut"),
+    //     display_color: None,
+    //     avatar_url: None,
+    // };
 
     // Connect to the database.
     let (client, connection) =
@@ -34,7 +34,7 @@ async fn index() -> impl Responder {
         }
     });
 
-    let db_response = match queries::create_user_query(user, client).await {
+    let db_response = match queries::create_user_query(user.into_inner(), client).await {
         Ok(rows_changed) => rows_changed,
         Err(err) => return HttpResponse::InternalServerError().body(format!("{}", err)),
     };
@@ -42,9 +42,9 @@ async fn index() -> impl Responder {
     return HttpResponse::Ok().body(format!("lol {}", db_response));
 }
 
-#[get("/user")]
-async fn get_user() -> impl Responder {
-    let id = 3;
+#[get("/user/{user_id}")]
+async fn get_user(path: web::Path<i32>) -> impl Responder {
+    let id = path.into_inner();
     let (client, connection) =
         match tokio_postgres::connect("host=localhost dbname=chat_app user=aidanboland", NoTls)
             .await

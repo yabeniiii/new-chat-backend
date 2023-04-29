@@ -1,22 +1,12 @@
 mod queries;
 
-use std::fmt::format;
-
 use actix_web::{get, post, web, App, HttpResponse, HttpServer, Responder};
 use backend::models;
 use tokio;
-use tokio_postgres::{Error, NoTls};
+use tokio_postgres::NoTls;
 
 #[post("/user/create")]
 async fn index(user: web::Json<models::User>) -> impl Responder {
-    // let user = models::User {
-    //     id: None,
-    //     email: format!("nut@nut.nut"),
-    //     display_name: format!("nut"),
-    //     display_color: None,
-    //     avatar_url: None,
-    // };
-
     // Connect to the database.
     let (client, connection) =
         match tokio_postgres::connect("host=localhost dbname=chat_app user=aidanboland", NoTls)
@@ -43,8 +33,7 @@ async fn index(user: web::Json<models::User>) -> impl Responder {
 }
 
 #[get("/user/{user_id}")]
-async fn get_user(path: web::Path<i32>) -> impl Responder {
-    let id = path.into_inner();
+async fn get_user(id: web::Path<i32>) -> impl Responder {
     let (client, connection) =
         match tokio_postgres::connect("host=localhost dbname=chat_app user=aidanboland", NoTls)
             .await
@@ -57,7 +46,7 @@ async fn get_user(path: web::Path<i32>) -> impl Responder {
             eprintln!("connection error: {}", e);
         }
     });
-    let db_response = match queries::get_user_query(id, client).await {
+    let db_response = match queries::get_user_query(id.into_inner(), client).await {
         Ok(response) => response,
         Err(err) => return HttpResponse::InternalServerError().body(format!("{}", err)),
     };

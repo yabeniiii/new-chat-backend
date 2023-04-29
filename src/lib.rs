@@ -1,10 +1,7 @@
 pub mod models {
     use serde::{Deserialize, Serialize};
-    use tokio_pg_mapper::FromTokioPostgresRow;
-    use tokio_pg_mapper_derive::PostgresMapper;
 
-    #[derive(Serialize, Deserialize, Debug, PostgresMapper)]
-    #[pg_mapper(table = "users")]
+    #[derive(Serialize, Deserialize, Debug)]
     pub struct User {
         pub id: Option<i32>,
         pub email: String,

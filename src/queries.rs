@@ -1,5 +1,4 @@
 use backend::models::User;
-use tokio_pg_mapper::FromTokioPostgresRow;
 use tokio_postgres::{Client, Error};
 
 pub const USER_CREATE: &str =
@@ -7,7 +6,7 @@ pub const USER_CREATE: &str =
 pub const USER_GET: &str =
     "SELECT id, email, display_name, display_color, avatar_url FROM users WHERE id=$1";
 
-pub async fn create_user_query(user: User, mut client: Client) -> Result<u64, Error> {
+pub async fn create_user_query(user: User, client: Client) -> Result<u64, Error> {
     return client
         .execute(
             USER_CREATE,
@@ -33,4 +32,4 @@ pub async fn get_user_query(id: i32, client: Client) -> Result<User, Error> {
     });
 }
 
-pub fn create_message_query() {}
+pub fn _create_message_query() {}

@@ -13,7 +13,7 @@ pub mod models {
     #[derive(Serialize, Deserialize, Debug)]
     pub struct Message {
         pub id: Option<i32>,
-        pub sender: User,
+        pub sender_id: i32,
         pub content: String,
     }
 }

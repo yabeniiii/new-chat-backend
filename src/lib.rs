@@ -3,7 +3,7 @@ pub mod models {
 
     #[derive(Serialize, Deserialize, Debug)]
     pub struct User {
-        pub id: Option<i32>,
+        pub id: i32,
         pub email: String,
         pub display_name: String,
         pub display_color: Option<String>,
@@ -12,8 +12,8 @@ pub mod models {
 
     #[derive(Serialize, Deserialize, Debug)]
     pub struct Message {
-        pub id: Option<i32>,
-        pub sender_id: i32,
+        pub id: i32,
+        pub sender: User,
         pub content: String,
     }
 }

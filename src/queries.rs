@@ -50,6 +50,7 @@ pub async fn get_message_query(
         .await?;
     let response = db_response
         .iter()
+        .rev()
         .map(|row| models::Message {
             id: row.get("message_id"),
             sender: models::User {

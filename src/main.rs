@@ -1,9 +1,23 @@
 mod queries;
-use actix_web::{get, post, web, App, HttpResponse, HttpServer, Responder};
+use actix_web::{
+    get, http::header::ContentType, post, web, App, HttpResponse, HttpServer, Responder,
+};
 use backend::models;
-// use serde_json;
+use std::fs::read_to_string;
 use tokio;
 use tokio_postgres::NoTls;
+
+#[get("/")]
+async fn serve_home() -> impl Responder {
+    let path: &str = "./client/index.html";
+    let file = match read_to_string(path) {
+        Ok(file) => file,
+        Err(e) => return HttpResponse::InternalServerError().body(format!("{}", e)),
+    };
+    return HttpResponse::Ok()
+        .content_type(ContentType::html())
+        .body(file);
+}
 
 #[get("/message/get/{number}/{starting}")]
 async fn get_messages(data: web::Path<(i64, i64)>) -> impl Responder {
@@ -28,6 +42,7 @@ async fn get_messages(data: web::Path<(i64, i64)>) -> impl Responder {
     match queries::get_message_query(number, starting_from, client).await {
         Ok(response_vec) => {
             let mut html: String = String::new();
+            html.push_str("<span id='top_of_chat'></span>");
             response_vec.iter().for_each(|message| {
                 let message_sender_display_color = match &message.sender.display_color {
                     Some(color) => color.clone(),
@@ -39,7 +54,7 @@ async fn get_messages(data: web::Path<(i64, i64)>) -> impl Responder {
                 };
                 html.push_str(format!("
                         <div class='message-box'>
-                            <div class='avatar' style='background-image: {message_sender_avatar}' />
+                            <div class='avatar' style='background-image: {message_sender_avatar}'></div>
                             <div class='message-content'>
                                 <div class='message-bar'>
                                     <h1 class='display-name' style='color: {message_sender_color}'>{message_sender_name}</h1>
@@ -50,7 +65,9 @@ async fn get_messages(data: web::Path<(i64, i64)>) -> impl Responder {
                         </div>
                     ", message_sender_avatar = message_sender_avatar_url, message_sender_color = message_sender_display_color, message_sender_name = message.sender.display_name, message_sender_id = message.sender.id, message_id = message.id, message_content = message.content).as_str());
             });
-            return HttpResponse::Ok().body(html);
+            return HttpResponse::Ok()
+                .content_type(ContentType::html())
+                .body(html);
         }
         Err(err) => return HttpResponse::InternalServerError().body(format!("{}", err)),
     }
@@ -140,6 +157,7 @@ async fn main() -> std::io::Result<()> {
     println!("started server at http://localhost:8080/");
     HttpServer::new(|| {
         App::new()
+            .service(serve_home)
             .service(create_user)
             .service(get_user)
             .service(create_message)

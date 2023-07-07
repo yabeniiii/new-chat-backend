@@ -1,0 +1,18 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <script src="https://unpkg.com/htmx.org@1.9.2" integrity="sha384-L6OqL9pRWyyFU3+/bjdSri+iIphTN/bvYyM37tICVyOJkWZLpP2vGn6VUEXgzg6h" crossorigin="anonymous"></script>
+        <link rel="icon" type="image/x-icon" href="/images/favicon.ico">
+        <link rel="stylesheet" href="/styles.css">
+        <link rel="stylesheet" href="/chat-styles.css">
+    </head>
+    <body>
+        <main>
+            <div id="chat-scroll">
+                <span id="top_of_chat" hx-get="/message/get/20/0" hx-trigger="load" hx-target="this" hx-swap="outerHTML"></span>
+            </div>
+
+        </main>
+    </body>
+</html>
+

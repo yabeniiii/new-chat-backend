@@ -1,22 +1,47 @@
 mod queries;
+use actix_files::NamedFile;
 use actix_web::{
     get, http::header::ContentType, post, web, App, HttpResponse, HttpServer, Responder,
 };
 use backend::models;
-use std::fs::read_to_string;
 use tokio;
 use tokio_postgres::NoTls;
 
 #[get("/")]
 async fn serve_home() -> impl Responder {
-    let path: &str = "./client/index.html";
-    let file = match read_to_string(path) {
-        Ok(file) => file,
-        Err(e) => return HttpResponse::InternalServerError().body(format!("{}", e)),
-    };
-    return HttpResponse::Ok()
-        .content_type(ContentType::html())
-        .body(file);
+    return NamedFile::open_async("./client/index.html").await;
+}
+
+#[get("/images/favicon.ico")]
+async fn serve_icon() -> impl Responder {
+    return NamedFile::open_async("./client/images/favicon.ico").await;
+}
+
+#[get("/chat")]
+async fn serve_chat() -> impl Responder {
+    return NamedFile::open_async("./client/chat.html").await;
+}
+
+#[get("/login")]
+async fn serve_login() -> impl Responder {
+    return NamedFile::open_async("./client/login.html").await;
+}
+
+#[get("/styles.css")]
+async fn serve_styles() -> impl Responder {
+    return NamedFile::open_async("./client/styles.css").await;
+}
+#[get("/index-styles.css")]
+async fn serve_indexstyles() -> impl Responder {
+    return NamedFile::open_async("./client/index-styles.css").await;
+}
+#[get("/chat-styles.css")]
+async fn serve_chatstyles() -> impl Responder {
+    return NamedFile::open_async("./client/chat-styles.css").await;
+}
+#[get("/login-styles.css")]
+async fn serve_loginstyles() -> impl Responder {
+    return NamedFile::open_async("./client/login-styles.css").await;
 }
 
 #[get("/message/get/{number}/{starting}")]
@@ -158,6 +183,13 @@ async fn main() -> std::io::Result<()> {
     HttpServer::new(|| {
         App::new()
             .service(serve_home)
+            .service(serve_icon)
+            .service(serve_login)
+            .service(serve_styles)
+            .service(serve_indexstyles)
+            .service(serve_chatstyles)
+            .service(serve_loginstyles)
+            .service(serve_chat)
             .service(create_user)
             .service(get_user)
             .service(create_message)

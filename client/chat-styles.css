@@ -1,0 +1,31 @@
+div.message-box {
+	box-shadow: -4px -4px 4px 0px rgba(0, 0, 0, 0.1) inset, 2px 2px 4px 0px rgba(255, 255, 255, 0.1) inset;
+	background-color: rgba(129, 129, 129, 0.3);
+	border-radius: 2vmin;
+	width: calc(100% - 2.5rem);
+	padding: 1.25rem;
+	display: flex;
+	flex-direction: row;
+}
+
+div.message-box div.avatar {
+	box-shadow: 4px 4px 4px 0px rgba(0, 0, 0, 0.25);
+	background-color: #ffffff;
+	border-radius: 2vmin;
+	height: 2.5rem;
+	width: 2.5rem;
+}
+
+div.message-box div.message-content div.message-bar {
+	display: flex;
+	flex-direction: row;
+	justify-content: space-between;
+}
+
+div.message-box div.message-content div.message-bar h1.display-name {
+	font-weight: 700;
+}
+
+div.message-box div.message-content div.message-bar p.message-info {
+	color: #999;
+}

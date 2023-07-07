@@ -1,0 +1,36 @@
+main {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    gap: 1.5rem;
+}
+
+#title {
+	box-shadow: -4px -4px 4px 0px rgba(0, 0, 0, 0.1) inset, 2px 2px 4px 0px rgba(255, 255, 255, 0.1) inset;
+	background-color: rgba(129, 129, 129, 0.3);
+	border-radius: 2vmin;
+	width: calc(100% - 2.5rem);
+	padding: 1.25rem;
+}
+
+#title h1 {
+	width: fit-content;
+	margin-left: auto;
+	margin-right: auto;
+}
+
+#details {
+	box-shadow: -4px -4px 4px 0px rgba(0, 0, 0, 0.1) inset, 2px 2px 4px 0px rgba(255, 255, 255, 0.1) inset;
+	background-color: rgba(129, 129, 129, 0.3);
+	border-radius: 2vmin;
+	width: calc(100% - 2.5rem);
+	padding: 1.25rem;
+}
+
+#links {
+	box-shadow: -4px -4px 4px 0px rgba(0, 0, 0, 0.1) inset, 2px 2px 4px 0px rgba(255, 255, 255, 0.1) inset;
+	background-color: rgba(129, 129, 129, 0.3);
+	border-radius: 2vmin;
+	width: calc(100% - 2.5rem);
+	padding: 1.25rem;
+}

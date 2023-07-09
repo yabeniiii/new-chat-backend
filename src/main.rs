@@ -1,9 +1,9 @@
-mod queries;
 use actix_files::NamedFile;
 use actix_web::{
     get, http::header::ContentType, post, web, App, HttpResponse, HttpServer, Responder,
 };
-use backend::models;
+use rebarchat::models;
+use rebarchat::queries;
 use tokio;
 use tokio_postgres::NoTls;
 
@@ -45,7 +45,7 @@ async fn serve_loginstyles() -> impl Responder {
 }
 
 #[get("/message/get/{number}/{starting}")]
-async fn get_messages(data: web::Path<(i64, i64)>) -> impl Responder {
+async fn get_messages(data: web::Path<(i64, i32)>) -> impl Responder {
     let (number, starting_from) = data.into_inner();
     let (client, connection) = match tokio_postgres::connect(
         "host=localhost 
@@ -61,13 +61,12 @@ async fn get_messages(data: web::Path<(i64, i64)>) -> impl Responder {
 
     tokio::spawn(async move {
         if let Err(e) = connection.await {
-            eprintln!("connection error: {}", e);
+            eprintln!("error: {}", e);
         }
     });
     match queries::get_message_query(number, starting_from, client).await {
         Ok(response_vec) => {
             let mut html: String = String::new();
-            html.push_str("<span id='top_of_chat'></span>");
             response_vec.iter().for_each(|message| {
                 let message_sender_display_color = match &message.sender.display_color {
                     Some(color) => color.clone(),
@@ -90,6 +89,14 @@ async fn get_messages(data: web::Path<(i64, i64)>) -> impl Responder {
                         </div>
                     ", message_sender_avatar = message_sender_avatar_url, message_sender_color = message_sender_display_color, message_sender_name = message.sender.display_name, message_sender_id = message.sender.id, message_id = message.id, message_content = message.content).as_str());
             });
+            let last_message =
+                match response_vec.last() {
+                    Some(last_message) => last_message,
+                    None => return HttpResponse::InternalServerError().body(
+                        "ERROR: message collection empty when trying to determine latest message",
+                    ),
+                };
+            html.push_str(format!("<div id='top_of_chat' class='load-button' hx-trigger='click' hx-target='this' hx-swap='outerHTML' hx-get='/message/get/10/{}'>Load More</div>", last_message.id).as_str());
             return HttpResponse::Ok()
                 .content_type(ContentType::html())
                 .body(html);
@@ -99,7 +106,7 @@ async fn get_messages(data: web::Path<(i64, i64)>) -> impl Responder {
 }
 
 #[post("/message/post")]
-async fn create_message(data: web::Json<models::Message>) -> impl Responder {
+async fn create_message(data: web::Json<models::IncomingMessage>) -> impl Responder {
     let (client, connection) = match tokio_postgres::connect(
         "host=localhost 
         dbname=chat_app 
@@ -125,7 +132,7 @@ async fn create_message(data: web::Json<models::Message>) -> impl Responder {
 }
 
 #[post("/user/create")]
-async fn create_user(user: web::Json<models::User>) -> impl Responder {
+async fn create_user(user: web::Json<models::IncomingUser>) -> impl Responder {
     let (client, connection) = match tokio_postgres::connect(
         "host=localhost 
         dbname=chat_app 

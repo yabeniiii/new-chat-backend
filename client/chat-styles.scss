@@ -1,0 +1,46 @@
+@include styles.scss;
+
+.chat-scroll {
+    width: 90%;
+    margin-right: auto;
+    margin-left: auto;
+    height: 80%;
+    top: 0px;
+    overflow: auto;
+    display: flex;
+    flex-direction: column-reverse;
+    gap: 1.25rem;
+    align-items: center;
+    -ms-overflow-style: none;  /* IE and Edge */
+    scrollbar-width: none;  /* Firefox */
+    &::-webkit-scrollbar {
+        display: none;
+    }
+
+    .message-box {
+        @include content-box;
+
+        display: flex;
+        flex-direction: row;
+        gap: 1rem;
+
+        .avatar {
+            @include float;
+
+            background-color: #ffffff;
+            border-radius: 1vmin;
+            height: 2.5rem;
+            width: 2.5rem;
+        }
+    }
+
+    .load-button {
+        box-shadow: -4px -4px 4px 0px rgba(0, 0, 0, 0.1) inset, 2px 2px 4px 0px rgba(255, 255, 255, 0.1) inset;
+        background-color: rgba(68, 68, 68, 0.60);
+        border-radius: 2.5vmin;
+        width: 20%;
+        padding: 0.5rem;
+        text-align: center;
+        margin-top: 1.5rem;
+    }
+}
